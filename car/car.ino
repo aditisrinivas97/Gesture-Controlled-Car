@@ -1,104 +1,109 @@
-int GNDPin=A4; //Set Analog pin 4 as GND
-int VccPin=A5; //Set Analog pin 5 as VCC
-int xPin=A3; //X axis input
-int yPin=A2; //Y axis input
-int zPin=A1; //Z axis input(not used)
-int Q1=10,Q2=11,Q3=12,Q4=13; //Output pins to be connected to 10, 11, 12, 13 of Decoder IC
+//Accelerometer pin config
+int VccPin = A1; //Set Analog pin A1 as VCC
+int xPin = A2; //X axis input
+int yPin = A3; //Y axis input
+int zPin = A4; //Z axis input (Not required)
+int GNDPin = A5; //Set Analog pin A5 as GND
+
+//Accelerometer output pins config
 long x; //Variabe for storing X coordinates
 long y; //Variabe for storing Y coordinates
 long z; //Variabe for storing Z coordinates
-void setup()
-{
-  Serial.begin(9600);
-  pinMode(Q1,OUTPUT);
-  pinMode(Q2,OUTPUT);
-  pinMode(Q3,OUTPUT);
-  pinMode(Q4,OUTPUT);
+
+//Encoder pin config
+int O1=10,O2=11,O3=12,O4=13; //Output pins to be connected to 10, 11, 12, 13 of Encoder IC
+
+
+void setup() {
+  //Serial.begin(9600);     //To debug
+  pinMode(O1,OUTPUT);
+  pinMode(O2,OUTPUT);
+  pinMode(O3,OUTPUT);
+  pinMode(O4,OUTPUT);
   pinMode(GNDPin, OUTPUT);
   pinMode(VccPin, OUTPUT);
-  digitalWrite(GNDPin, LOW); //Set A4 pin LOW
-  digitalWrite(VccPin, HIGH); //Set A5 pin HIGH
-}
-void loop()
-{
-  x = analogRead(xPin); //Reads X coordinates
-  y = analogRead(yPin); //Reads Y coordinates
-  z = analogRead(zPin); //Reads Z coordinates (Not Used)
-  int a, b, c, d;
-  a = digitalRead(2);
-  b = digitalRead(3);
-  c = digitalRead(4);
-  d = digitalRead(5);
 
-  Serial.print(Q1);
-  Serial.print(" ");
-  Serial.print(Q2);
-  Serial.print(" ");
-  Serial.print(Q3);
-  Serial.print(" ");
-  Serial.print(Q4);
-  Serial.print("\n");
-  
-    if(x<340)      // Change the value for adjusting sensitivity  
-      forward();
-    else if(x>400) // Change the value for adjusting sensitivity
-      backward();
-    else if(y>400) // Change the value for adjusting sensitivity
-      right();
-    else if(y<340) // Change the value for adjusting sensitivity
-      left();
-    else
-      stop_();
-  
-  Serial.print("Check : ");
+  //Switch on accelerometer
+  digitalWrite(GNDPin, LOW);        //Set A5 pin to LOW for GND
+  digitalWrite(VccPin, HIGH);       //Set A5 pin to HIGH for Vcc
+}
+
+void loop() {
+  x = analogRead(xPin);     //Reads X coordinates
+  y = analogRead(yPin);     //Reads Y coordinates
+  z = analogRead(zPin);     //Reads Z coordinates (Not Required)
+
+  /*int a, b, c, d;         //To debug
+  a = digitalRead(3);       //Connect decoder output to Arduino to check {Encoder -- RF TX/RX -- Decoder}
+  b = digitalRead(4);
+  c = digitalRead(5);
+  d = digitalRead(6);*/
+
+  if(x<340)      // Change the value for adjusting sensitivity  
+    left();
+  else if(x>400) // Change the value for adjusting sensitivity
+    right();
+  else if(y>400) // Change the value for adjusting sensitivity
+    forward();
+  else if(y<340) // Change the value for adjusting sensitivity
+    backward();
+  else
+    stopcar();
+
+  /*Serial.print("Check : ");           //To debug : to check {Encoder -- RF TX/RX -- Decoder}
   Serial.print(a); Serial.print(" ");
   Serial.print(b); Serial.print(" ");
   Serial.print(c); Serial.print(" ");
-  Serial.print(d); Serial.print("\n");
+  Serial.print(d); Serial.print("\n");*/
 }
-void stop_()
-{
+
+void stopcar() {
   Serial.println("");
   Serial.println("STOP");
-  digitalWrite(Q1,LOW);
-  digitalWrite(Q2,LOW);
-  digitalWrite(Q3,LOW);
-  digitalWrite(Q4,LOW);
+  
+  digitalWrite(O1,LOW);     //Send 0000 to motor terminals
+  digitalWrite(O2,LOW);     //All motors stop
+  digitalWrite(O3,LOW);
+  digitalWrite(O4,LOW);
 }
-void forward()
-{
+
+void forward() {
   Serial.println("");
   Serial.println("Forward");
-  digitalWrite(Q1,HIGH);
-  digitalWrite(Q2,LOW);
-  digitalWrite(Q3,HIGH);
-  digitalWrite(Q4,LOW);
+  
+  digitalWrite(O1,HIGH);    //Send 1010 to motor terminals
+  digitalWrite(O2,LOW);     //Turn both motors in opposite directions
+  digitalWrite(O3,HIGH);    //Car moves forward
+  digitalWrite(O4,LOW);
 }
-void backward()
-{
+
+void backward() {
   Serial.println("");
   Serial.println("Backward");
-  digitalWrite(Q1,LOW);
-  digitalWrite(Q2,HIGH);
-  digitalWrite(Q3,LOW);
-  digitalWrite(Q4,HIGH);
+  
+  digitalWrite(O1,LOW);     //Send 0101 to motor terminals
+  digitalWrite(O2,HIGH);    //Turn both motors in opposite directions
+  digitalWrite(O3,LOW);     //Opposite of forward; car moves backward
+  digitalWrite(O4,HIGH);
 }
-void left()
-{
+
+void left() {
   Serial.println("");
   Serial.println("Left");
-  digitalWrite(Q1,LOW);
-  digitalWrite(Q2,HIGH);
-  digitalWrite(Q3,HIGH);
-  digitalWrite(Q4,LOW);
+  
+  digitalWrite(O1,LOW);     //Send 0110 to motor terminals
+  digitalWrite(O2,HIGH);    //Turn both motors in same direction
+  digitalWrite(O3,HIGH);    //Car turns left (in our circuit)
+  digitalWrite(O4,LOW);
 }
+
 void right()
 {
   Serial.println("");
   Serial.println("Right");
-  digitalWrite(Q1,HIGH);
-  digitalWrite(Q2,LOW);
-  digitalWrite(Q3,LOW);
-  digitalWrite(Q4,HIGH);
+  
+  digitalWrite(O1,HIGH);      //Send 1001 to motor terminals
+  digitalWrite(O2,LOW);       //Turn both motors in same direction
+  digitalWrite(O3,LOW);       //But opposite of left
+  digitalWrite(O4,HIGH);      //Car turns right
 }
-
