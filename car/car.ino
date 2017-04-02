@@ -13,9 +13,12 @@ long z; //Variabe for storing Z coordinates
 //Encoder pin config
 int O1=10,O2=11,O3=12,O4=13; //Output pins to be connected to 10, 11, 12, 13 of Encoder IC
 
+byte debug = 0;   //set to 1 to debug
+
 
 void setup() {
-  //Serial.begin(9600);     //To debug
+  if(debug)
+    Serial.begin(9600);     //To debug
   pinMode(O1,OUTPUT);
   pinMode(O2,OUTPUT);
   pinMode(O3,OUTPUT);
@@ -29,6 +32,7 @@ void setup() {
 }
 
 void loop() {
+  //analogReference(EXTERNAL);
   x = analogRead(xPin);     //Reads X coordinates
   y = analogRead(yPin);     //Reads Y coordinates
   z = analogRead(zPin);     //Reads Z coordinates (Not Required)
@@ -38,6 +42,9 @@ void loop() {
   b = digitalRead(4);
   c = digitalRead(5);
   d = digitalRead(6);*/
+  Serial.println(x);
+  Serial.println(y);
+  
 
   if(x<340)      // Change the value for adjusting sensitivity  
     left();
@@ -58,8 +65,10 @@ void loop() {
 }
 
 void stopcar() {
-  Serial.println("");
-  Serial.println("STOP");
+  if(debug) {
+    Serial.println("");
+    Serial.println("STOP");
+  }
   
   digitalWrite(O1,LOW);     //Send 0000 to motor terminals
   digitalWrite(O2,LOW);     //All motors stop
@@ -68,8 +77,10 @@ void stopcar() {
 }
 
 void forward() {
-  Serial.println("");
-  Serial.println("Forward");
+  if(debug) {
+    Serial.println("");
+    Serial.println("Forward");
+  }
   
   digitalWrite(O1,HIGH);    //Send 1010 to motor terminals
   digitalWrite(O2,LOW);     //Turn both motors in opposite directions
@@ -78,8 +89,10 @@ void forward() {
 }
 
 void backward() {
-  Serial.println("");
-  Serial.println("Backward");
+  if(debug) {
+    Serial.println("");
+    Serial.println("Backward");
+  }
   
   digitalWrite(O1,LOW);     //Send 0101 to motor terminals
   digitalWrite(O2,HIGH);    //Turn both motors in opposite directions
@@ -87,23 +100,27 @@ void backward() {
   digitalWrite(O4,HIGH);
 }
 
-void left() {
-  Serial.println("");
-  Serial.println("Left");
+void right() {
+  if(debug) {
+    Serial.println("");
+    Serial.println("Left");
+}
   
   digitalWrite(O1,LOW);     //Send 0110 to motor terminals
   digitalWrite(O2,HIGH);    //Turn both motors in same direction
-  digitalWrite(O3,HIGH);    //Car turns left (in our circuit)
+  digitalWrite(O3,HIGH);    //Car turns right (in our circuit)
   digitalWrite(O4,LOW);
 }
 
-void right()
+void left()
 {
-  Serial.println("");
-  Serial.println("Right");
+  if(debug) {
+    Serial.println("");
+    Serial.println("Right");
+  }
   
   digitalWrite(O1,HIGH);      //Send 1001 to motor terminals
   digitalWrite(O2,LOW);       //Turn both motors in same direction
-  digitalWrite(O3,LOW);       //But opposite of left
-  digitalWrite(O4,HIGH);      //Car turns right
+  digitalWrite(O3,LOW);       //But opposite of right
+  digitalWrite(O4,HIGH);      //Car turns left
 }
